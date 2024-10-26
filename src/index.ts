@@ -1,4 +1,5 @@
 import { Catalog, type BookItemInfo, type CatalogData } from './catalog';
+import { UserManagement, type UserManagementData } from './user-management';
 
 type LibraryData = {
   userManagementData: UserManagementData;
@@ -44,36 +45,33 @@ class Library {
   };
 }
 
-// TODO
-type UserManagementData = unknown;
-class UserManagement {
-  static isLibrarian = (
-    userManagementData: UserManagementData,
-    userId: string
-  ): boolean => {
-    // TODO
-    return true;
-  };
-
-  static isSuperMember = (
-    userManagementData: UserManagementData,
-    userId: string
-  ): boolean => {
-    // TODO
-    return true;
-  };
-
-  static isVIPMember = (
-    userManagementData: UserManagementData,
-    userId: string
-  ): boolean => {
-    // TODO
-    return true;
-  };
-}
-
 const libData: LibraryData = {
-  userManagementData: {},
+  userManagementData: {
+    librariansByEmail: {
+      'franck@gmail.com': {
+        email: 'franck@gmail.com',
+        //"mypassword"のbase64エンコーディング
+        encryptedPassword: 'bXlwYXNzd29yZA==',
+      },
+    },
+    membersByEmail: {
+      'samantha@gmail.com': {
+        email: 'samantha@gmail.com',
+        //"secret"のbase64エンコーディング
+        encryptedPassword: 'c2VjcmV0',
+        isBlocked: false,
+        bookLendings: [
+          {
+            bookItemId: 'bookitem1',
+            bookIsbn: '9781779501127',
+            lendingDate: '20200423',
+          },
+        ],
+        isVIP: true,
+        isSuper: false,
+      },
+    },
+  },
   catalogData: {
     booksByIsbn: {
       '9781779501127': {
@@ -95,3 +93,6 @@ const libData: LibraryData = {
 };
 
 console.log(Library.searchBooksByTitle(libData, 'Wat'));
+console.log(
+  UserManagement.isLibrarian(libData.userManagementData, 'franck@gmail.com')
+);
