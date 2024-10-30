@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { authorNameSchema } from '../author';
 import { authorIdSchema } from '../author/author-id';
+import { bookItemSchema } from '../book-item';
 import { isbnSchema } from './isbn';
 
 const titleSchema = z.string().brand('Title');
@@ -17,13 +18,7 @@ export const bookSchema = z.object({
   title: titleSchema,
   publicationYear: z.number(),
   authorIds: z.array(authorIdSchema),
-  bookItems: z.array(
-    z.object({
-      id: z.string().brand('BookItemId'),
-      libId: z.string().brand('LibId'),
-      isLent: z.boolean(),
-    })
-  ),
+  bookItems: z.array(bookItemSchema),
 });
 
 export type Book = z.infer<typeof bookSchema>;

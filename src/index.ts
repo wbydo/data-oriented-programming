@@ -4,6 +4,10 @@ import { authorIdSchema } from './catalog/author/author-id';
 import { type BookItemInfo, bookSchema } from './catalog/book';
 import { isbnSchema } from './catalog/book/isbn';
 import { UserManagement, type UserManagementData } from './user-management';
+import { librarianSchema } from './user-management/librarian';
+import { librarianEmailSchema } from './user-management/librarian/librarian-email';
+import { memberSchema } from './user-management/member';
+import { memberEmailSchema } from './user-management/member/member-email';
 
 type LibraryData = {
   userManagementData: UserManagementData;
@@ -52,14 +56,14 @@ class Library {
 const libData: LibraryData = {
   userManagementData: {
     librariansByEmail: {
-      'franck@gmail.com': {
+      [librarianEmailSchema.parse('franck@gmail.com')]: librarianSchema.parse({
         email: 'franck@gmail.com',
         //"mypassword"のbase64エンコーディング
         encryptedPassword: 'bXlwYXNzd29yZA==',
-      },
+      }),
     },
     membersByEmail: {
-      'samantha@gmail.com': {
+      [memberEmailSchema.parse('samantha@gmail.com')]: memberSchema.parse({
         email: 'samantha@gmail.com',
         //"secret"のbase64エンコーディング
         encryptedPassword: 'c2VjcmV0',
@@ -71,9 +75,9 @@ const libData: LibraryData = {
             lendingDate: '20200423',
           },
         ],
-        isVIP: true,
+        isVip: true,
         isSuper: false,
-      },
+      }),
     },
   },
   catalogData: {
