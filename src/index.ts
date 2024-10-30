@@ -1,4 +1,8 @@
-import { Catalog, type BookItemInfo, type CatalogData } from './catalog';
+import { Catalog, type CatalogData } from './catalog';
+import { authorSchema } from './catalog/author';
+import { authorIdSchema } from './catalog/author/author-id';
+import { type BookItemInfo, bookSchema } from './catalog/book';
+import { isbnSchema } from './catalog/book/isbn';
 import { UserManagement, type UserManagementData } from './user-management';
 
 type LibraryData = {
@@ -74,8 +78,8 @@ const libData: LibraryData = {
   },
   catalogData: {
     booksByIsbn: {
-      '9781779501127': {
-        isbn: '9781779501127',
+      [isbnSchema.parse('9781779501127')]: bookSchema.parse({
+        isbn: isbnSchema.parse('9781779501127'),
         title: 'Watchmen',
         publicationYear: 1987,
         authorIds: ['alanmoore', 'davegibbons'],
@@ -83,11 +87,17 @@ const libData: LibraryData = {
           { id: 'bookitem1', libId: 'nyccentrallib', isLent: true },
           { id: 'bookitem2', libId: 'nyccentrallib', isLent: false },
         ],
-      },
+      }),
     },
     authorsById: {
-      alanmoore: { name: 'AlanMoore', bookIsbns: ['9781779501127'] },
-      davegibbons: { name: 'DaveGibbons', bookIsbns: ['9781779501127'] },
+      [authorIdSchema.parse('alanmoore')]: authorSchema.parse({
+        name: 'AlanMoore',
+        bookIsbns: ['9781779501127'],
+      }),
+      [authorIdSchema.parse('davegibbons')]: authorSchema.parse({
+        name: 'DaveGibbons',
+        bookIsbns: ['9781779501127'],
+      }),
     },
   },
 };

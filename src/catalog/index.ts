@@ -1,6 +1,11 @@
+import { type Author } from './author';
+import { type AuthorId } from './author/author-id';
+import { type Book, type BookItemInfo } from './book';
+import { type Isbn } from './book/isbn';
+
 export type CatalogData = {
-  booksByIsbn: Record<string, Book | undefined>;
-  authorsById: Record<string, Author | undefined>;
+  booksByIsbn: Record<Isbn, Book | undefined>;
+  authorsById: Record<AuthorId, Author | undefined>;
 };
 
 export class Catalog {
@@ -17,7 +22,7 @@ export class Catalog {
     throw new Error('No Impl');
   };
 
-  static authorNames = (catalogData: CatalogData, isbn: string) => {
+  static authorNames = (catalogData: CatalogData, isbn: Isbn) => {
     return catalogData.booksByIsbn[isbn]?.authorIds.map(
       (authorId) => catalogData.authorsById[authorId]?.name
     );
@@ -41,19 +46,3 @@ export class Catalog {
     return matchingBook.map((book) => this.toBookInfo(catalogData, book));
   };
 }
-
-export type BookItemInfo = {
-  isbn: string;
-  title: string;
-  authorNames: string[];
-};
-
-type Book = {
-  isbn: string;
-  title: string;
-  publicationYear: number;
-  authorIds: string[];
-  bookItems: { id: string; libId: string; isLent: boolean }[];
-};
-
-type Author = { name: string; bookIsbns: string[] };
