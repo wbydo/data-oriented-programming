@@ -3,7 +3,7 @@ import {
   type LibrarianEmail,
   librarianEmailSchema,
 } from './librarian/librarian-email';
-import { type Member } from './member';
+import { type Member, memberSchema } from './member';
 import { type MemberEmail, memberEmailSchema } from './member/member-email';
 
 export type UserManagementData = {
@@ -34,5 +34,19 @@ export class UserManagement {
   ): boolean => {
     const memberEmail = memberEmailSchema.parse(email);
     return userManagementData.membersByEmail[memberEmail]?.isVip ?? false;
+  };
+
+  static addMember = (
+    { librariansByEmail, membersByEmail }: UserManagementData,
+    member: unknown
+  ): UserManagementData => {
+    const parsedMember = memberSchema.parse(member);
+    return {
+      librariansByEmail,
+      membersByEmail: {
+        ...membersByEmail,
+        [parsedMember.email]: parsedMember,
+      },
+    };
   };
 }

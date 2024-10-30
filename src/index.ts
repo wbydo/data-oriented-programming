@@ -9,6 +9,66 @@ import { librarianEmailSchema } from './user-management/librarian/librarian-emai
 import { memberSchema } from './user-management/member';
 import { memberEmailSchema } from './user-management/member/member-email';
 
+class Consistency {
+  static validate = (previous: LibraryData, next: LibraryData): boolean => {
+    // TODO
+    return true;
+  };
+}
+
+class SystemState {
+  private _previoutSystemData: LibraryData | null = null;
+  private _systemData: LibraryData | null = null;
+
+  constructor(systemData: LibraryData | null) {
+    this._systemData = systemData;
+  }
+
+  get systemData() {
+    return this._systemData;
+  }
+
+  commit = (previous: LibraryData, next: LibraryData) => {
+    const systemDataBeforUpdate = this._systemData;
+
+    if (!Consistency.validate(previous, next)) {
+      throw new Error('Thesystemdatatobecommittedisnotvalid!');
+    }
+
+    this._systemData = next;
+    this._previoutSystemData = systemDataBeforUpdate;
+  };
+
+  undoLastMutation = () => {
+    this._systemData = this._previoutSystemData;
+  };
+}
+
+class System {
+  private readonly systemState: SystemState;
+
+  constructor(systemData: LibraryData | null) {
+    this.systemState = new SystemState(systemData);
+  }
+
+  debug = () => {
+    return this.systemState.systemData;
+  };
+
+  undoLastMutation = () => {
+    this.systemState.undoLastMutation();
+  };
+
+  addMember = (member: unknown) => {
+    const previous = this.systemState.systemData;
+
+    if (previous == null) throw new Error();
+
+    const next = Library.addMember(previous, member);
+    this.systemState.commit(previous, next);
+  };
+}
+
 type LibraryData = {
   userManagementData: UserManagementData;
   catalogData: CatalogData;
@@ -50,6 +110,21 @@ class Library {
   ) => {
     const result = Catalog.searchBooksByTitle(catalogData, query);
     return JSON.stringify(result);
+  };
+
+  static addMember = (
+    { userManagementData, catalogData }: LibraryData,
+    member: unknown
+  ): LibraryData => {
+    const nextUserManagementData = UserManagement.addMember(
+      userManagementData,
+      member
+    );
+
+    return {
+      catalogData,
+      userManagementData: nextUserManagementData,
+    };
   };
 }
 
@@ -106,7 +181,35 @@ const libData: LibraryData = {
   },
 };
 
+console.log('---Library test---');
 console.log(Library.searchBooksByTitle(libData, 'Wat'));
 console.log(
   UserManagement.isLibrarian(libData.userManagementData, 'franck@gmail.com')
 );
+console.log();
+console.log();
+
+const system = new System(libData);
+
+console.log('---System test 1---');
+console.log(system.debug());
+console.log();
+
+system.addMember({
+  email: 'hogehoge@gmail.com',
+  //"secret"のbase64エンコーディング
+  encryptedPassword: 'abcdef',
+  isBlocked: false,
+  bookLendings: [],
+  isVip: true,
+  isSuper: false,
+});
+
+console.log('---System test 2---');
+console.log(system.debug());
+console.log();
+
+system.undoLastMutation();
+console.log('---System test 3---');
+console.log(system.debug());
+console.log();
